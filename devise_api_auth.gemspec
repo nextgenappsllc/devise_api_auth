@@ -1,7 +1,7 @@
-# require_relative('lib/devise_api_auth')
+require File.expand_path('../lib/devise_api_auth/version', __FILE__)
 Gem::Specification.new do |s|
   s.name        = 'devise_api_auth'
-  s.version     = '0.0.1'
+  s.version     = DeviseApiAuth::VERSION
   s.date        = '2016-11-06'
   s.summary     = "Devise API Authentication"
   s.description = "This gem provides functionality to authenticate mobile apps in addition to web apps using devise."

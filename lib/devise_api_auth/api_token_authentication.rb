@@ -7,7 +7,7 @@ module ApiTokenAuthentication
 	    end
 
 	    def authenticate!
-	      if _token_matcher.match! && !_user.nil?
+	      if _token_matcher.match! && !_user.nil? && _validate_user
 	        success!(_user)
 	      else
 	        fail('Failed api token authentication')
@@ -33,7 +33,7 @@ module ApiTokenAuthentication
 	    end
 
 	    def _user_id
-	    	_secure_credentials[:id]
+	    	_secure_credentials[_config_options[:model_id_attribute].to_sym]
 	    end
 
 	    def _secure_credentials

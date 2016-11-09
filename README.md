@@ -219,6 +219,65 @@ extension Dictionary {
         return toJsonData()?.toString()
     }
 }
+
+extension Date {
+    /**
+     Shortcut to convert a date into a string.
+     
+     The default format is "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
+     
+     - Parameter format: An options string to format the date into. The default is ISO8601.
+     
+     - Returns: A string if successful
+     */
+    public func toString(format:String? = nil) -> String? {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = format ?? "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
+        return dateFormatter.string(from: self)
+    }
+}
+```
+
+The following is an example of how to set both the user credentials header fields and app credentials in the post paramters correctly:
+
+```swift
+let appToken = "my app token"
+let userIdentifier = "username"
+let userToken = "user specific token"
+let passphrase = "passphrase"
+let key = passphrase.md5()
+let date = Date().toString()
+
+let datedUserToken = "\(date)\(userToken)".sha256()
+// Include date in header of every request because it is used in the verification of the posted app token for non get requests
+let headerCredentials = [
+    "date": date,
+    "id": userIdentifier, // The name of this parameter needs to be the same as on the server defined in options[:model_id_attribute]
+    "token": datedUserToken
+]
+let headerCredentialsString = headerCredentials.toJsonString()
+let headerEncryptedCredentials = headerCredentialsString?.AES256Encrypt(key: key)
+
+var request = URLRequest(url: URL(string: "https://google.com")!)
+if let credentials = headerEncryptedCredentials, let encrypted = credentials.encrypted {
+    request.setValue("x-app-credentials", forHTTPHeaderField: encrypted)
+    request.setValue("x-app-iv", forHTTPHeaderField: credentials.iv)
+}
+
+// This is for the app credentials and is only necessary on non get requests since it acts as a CSRF token
+let datedAppToken = "\(date)\(appToken)".sha256()
+let postedCredentials = ["token": datedAppToken]
+let postedCredentialsString = postedCredentials.toJsonString()
+let postedEncryptedCredentials = postedCredentialsString?.AES256Encrypt(key: key)
+
+var paramsToPost = [
+    "_credentials": postedEncryptedCredentials?.encrypted,
+    "_iv": postedEncryptedCredentials?.iv
+]
+
+// Add more things you would like to send as paramters
+paramsToPost["something"] = "some value"
+// send the params to the server using the request
 ```
 
 

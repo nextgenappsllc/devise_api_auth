@@ -108,5 +108,118 @@ end
 
 ## iOS (Swift)
 
+The library I use to handle encryption in iOS is called [CyptoSwift](https://github.com/krzyzanowskim/CryptoSwift). I wrote the following extensions to assit with the serialization and encryption of the credentials. Create a .swift file in your project and paste the following code:
+
+```swift
+// DeviseApiAuthExtensions.swift
+import CryptoSwift
+
+
+extension String {
+    /**
+     Encrypts the string with the given 32 bit key.
+     
+     If you would like to use a passphrase instead of the key then use the md5 hash of the passphrase to ensure it is 32 bit like in the following example.
+     ````
+     let key = "passphrase".md5()
+     let encryptionResult = "encrypt me!".AES256Encrypt(key: key)
+     ````
+     
+     - Parameter key: The key to use for encryption. **Must be 32 bits in length.**
+     
+     - Returns: A tuple containing the hex string values on the initialization vector and the encrypted data.
+     */
+    func AES256Encrypt(key:String)->(iv:String, encrypted:String?){
+        let _key = key.utf8.map{$0}
+        let _iv = AES.randomIV(AES.blockSize)
+        var t:(iv:String, encrypted:String?) = (_iv.toHexString(), nil)
+        guard _key.count == 32, let aes = try? AES(key: _key, iv: _iv), let encrypted = try? aes.encrypt(Array(self.utf8)) else {return t}
+        t.encrypted = encrypted.toHexString()
+        return t
+    }
+    
+    /**
+     Decrypts the string with the given 32 bit key and initialization vector.
+     
+     If you would like to use a passphrase instead of the key then use the md5 hash of the passphrase to ensure it is 32 bit like in the following example.
+     ````
+     let key = "passphrase".md5()
+     let encryptionResult = "encrypt me!".AES256Encrypt(key: key)
+     let decrypted = encryptionResult.encrypted?.AES256Decrypt(key: key, iv: encryptionResult.iv)
+     ````
+     
+     - Parameter key: The key to use for encryption. **Must be 32 bits in length.**
+     
+     - Parameter iv: The initialization vector used to encrypt the data as a hex string.
+     
+     - Returns: A decrypted string if successful
+     */
+    func AES256Decrypt(key:String, iv:String) -> String?{
+        let _key = key.utf8.map{$0}
+        let _iv = iv.convertFromHex()
+        guard _key.count == 32, let aes = try? AES(key: _key, iv: _iv), let decrypted = try? aes.decrypt(self.convertFromHex()) else {return nil}
+        return String(data: Data(decrypted), encoding: .utf8)
+    }
+    
+    /**
+     Converts the string into an array of numbers corresponding to the hex value of character pairs.
+     
+     So the string "ff00" would get broken up into pairs so "ff" and "00" and then converted to numbers. 
+     The returned array would be [255, 0].
+     
+     - Returns: An array of 8 bit unsigned integers.
+     */
+    func convertFromHex() -> [UInt8]{
+        var values:[UInt8] = []
+        var chars = characters
+        var pair = ""
+        while let char = chars.popFirst() {
+            pair = "\(pair)\(char)"
+            if pair.characters.count > 1 {
+                if let value = UInt8(pair, radix: 16){values.append(value)}
+                pair = ""
+            }
+        }
+        return values
+    }
+    
+}
+
+extension Data {
+    /**
+     Shortcut to convert data into a string.
+     
+     Encoding is optional and the default is UTF8.
+     
+     - Returns: A string if successful
+     */
+    func toString(encoding: String.Encoding = .utf8) -> String? {
+        return String(data: self, encoding: encoding)
+    }
+}
+
+extension Dictionary {
+    /**
+     Shortcut to convert a dictionary into JSON data.
+     
+     - Returns: Data if successful
+     */
+    func toJsonData() -> Data? {
+        return try? JSONSerialization.data(withJSONObject: self, options: .init(rawValue: 0))
+    }
+    
+    /**
+     Shortcut to convert a dictionary into a JSON string.
+     
+     It calls toJsonData()?.toString() on a dictionary.
+     
+     - Returns: A string if successful
+     */
+    func toJsonString() -> String? {
+        return toJsonData()?.toString()
+    }
+}
+```
+
 
 

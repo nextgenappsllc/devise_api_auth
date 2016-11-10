@@ -263,6 +263,8 @@ extension Date {
 }
 ```
 
+#### Example
+
 The following is an example of how to set both the user credentials header fields and app credentials in the post paramters correctly:
 
 ```swift

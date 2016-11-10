@@ -1,14 +1,37 @@
 ## devise_api_auth
 
-# Rails implementation
+# Why?
 
-## Add the gem to your gemfile.
+When creating API's for native mobile applications, to get around the CSRF token I would do things like disabling CSRF token verification for JSON requests and/or requests from a particular user agent.
+
+I would then just protect routes by verifying the user with a simple token passed as either a header field or a parameter.
+
+The problem with that is thata malicious user or network owner could take the token and by forging their user agent (really easily) they could access the API as the user.
+
+# How?
+
+The credentials are sent in the form of a JSON object as a string then encrypted using AES 256 and sent as a hex string. The initialization vector must also be passed as a hex string apart from the encrypted credentials. 
+
+## The tokens
+
+Separate tokens are used for both CSRF and user authentication. Each token is hashed with the date in ISO8601 format using SHA 256 before being sent to the server. Both tokens must be hashed with the same date string. 
+
+The **date is always passed in the header credential** JSON object as "date" for all verified requests (both CSRF and user authentication).
+
+For requests requiring user authentication, the date hashed user token is passed in the header credential JSON object as "token" along with the user identifier (default "id").
+
+For non get requests requiring CSRF protection, the parameter credential json object must contain the date hashed app token as "token".
+
+# Implementation
+## Rails
+
+### Add the gem to your gemfile.
 
 ```ruby
 # Gemfile
 gem 'devise_api_auth'
 ```
-## Configure the gem in an initializer.
+### Configure the gem in an initializer.
 
 Two different secrets and an encryption key are required. To generate the secrets I would use:
 ```console 
@@ -22,15 +45,15 @@ Digest::MD5.hexdigest('passphrase')
 ```
 You should not keep the secrets and key in version control so I recommend using environmental variables or .gitignore
 
-### Available options:
+#### Available options:
 
-#### Required
+##### Required
 
 * **app_token:** The mobile app is expected to have this embeded as well and it is used for csrf
 * **encryption_key:** The server and mobile app uses this to encrypt and decryptthe credentials
 * **user_salt:** The server uses this salt to create a hash for the user token from a user.
 
-#### Optional
+##### Optional
 The defaults are shown below in the example code.
 
 * **header_iv:** The name of the initialization vector field in the header
@@ -63,7 +86,7 @@ DeviseApiAuth::Config.configure do |options|
 end
 ```
 
-## Add to controller
+### Add to controller
 ```ruby
 require 'devise_api_auth/date_csrf'
 class ApplicationController < ActionController::Base
@@ -72,7 +95,7 @@ class ApplicationController < ActionController::Base
 end
 ```
 
-## Include in model
+### Include in model
 ```ruby
 require 'devise'
 require 'devise_api_auth'
@@ -104,9 +127,9 @@ class User < ActiveRecord::Base
 end
 ```
 
-# Mobile app implementation
+## Mobile app implementation
 
-## iOS (Swift)
+### iOS (Swift)
 
 The library I use to handle encryption in iOS is called [CyptoSwift](https://github.com/krzyzanowskim/CryptoSwift). I wrote the following extensions to assit with the serialization and encryption of the credentials. Create a .swift file in your project and paste the following code:
 

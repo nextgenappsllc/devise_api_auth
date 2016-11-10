@@ -88,7 +88,7 @@ DeviseApiAuth::Config.configure do |options|
 end
 ```
 
-### Add to controller
+### Include in controller
 ```ruby
 require 'devise_api_auth/date_csrf'
 class ApplicationController < ActionController::Base
@@ -97,7 +97,7 @@ class ApplicationController < ActionController::Base
 end
 ```
 
-### Include in model
+### Add to model
 ```ruby
 require 'devise'
 require 'devise_api_auth'

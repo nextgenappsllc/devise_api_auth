@@ -33,6 +33,8 @@ This gem requires [Devise](https://github.com/plataformatec/devise) for user aut
 # Gemfile
 gem 'devise_api_auth'
 ```
+Then run `$ bundle install` in your console while in your app directory.
+
 ### Configure the gem in an initializer.
 
 Two different secrets and an encryption key are required. To generate the secrets I would use:

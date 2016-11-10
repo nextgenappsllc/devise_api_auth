@@ -8,6 +8,8 @@ I would then just protect routes by verifying the user with a simple token passe
 
 The problem with that is thata malicious user or network owner could take the token and by forging their user agent (really easily) they could access the API as the user.
 
+With this, the same malicious user or network host would have to break the encryption on both the header credentials containing the date and user authetication info and the parameter credentials containing the info for CSRF app authentication. Even then they would be left with tokens that were hashed with the date and thus no longer valid.
+
 # How?
 
 The credentials are sent in the form of a JSON object as a string then encrypted using AES 256 and sent as a hex string. The initialization vector must also be passed as a hex string apart from the encrypted credentials. 
@@ -308,6 +310,17 @@ var paramsToPost = [
 paramsToPost["something"] = "some value"
 // send the params to the server using the request
 ```
+
+### Android (Java)
+
+# What's next?
+
+# Contributing
+
+Please feel free to create a fork and contribute to this project. It needs further testing, refactoring, and feature expansion.
+
+
+
 
 
 

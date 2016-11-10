@@ -25,6 +25,8 @@ For non get requests requiring CSRF protection, the parameter credential json ob
 # Implementation
 ## Rails
 
+This gem requires [Devise](https://github.com/plataformatec/devise) for user authentication.
+
 ### Add the gem to your gemfile.
 
 ```ruby

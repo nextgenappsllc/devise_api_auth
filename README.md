@@ -8,11 +8,13 @@ I would then just protect routes by verifying the user with a simple token passe
 
 The problem with that is thata malicious user or network owner could take the token and by forging their user agent (really easily) they could access the API as the user.
 
-With this, the same malicious user or network host would have to break the encryption on both the header credentials containing the date and user authetication info and the parameter credentials containing the info for CSRF app authentication. Even then they would be left with tokens that were hashed with the date and thus no longer valid.
+With this, the same malicious user or network host would have to break the encryption on both the header credentials containing the date and user authentication info and the parameter credentials containing the info for CSRF verification. Even then they would be left with tokens that were hashed with the date and thus no longer valid.
 
 # How?
 
-The credentials are sent in the form of a JSON object as a string then encrypted using AES 256 and sent as a hex string. The initialization vector must also be passed as a hex string apart from the encrypted credentials. 
+The credentials are sent in the form of a JSON object as a string then encrypted using AES 256 with an embeded key that the server also has and sent as a hex string. The initialization vector must also be passed as a hex string apart from the encrypted credentials. 
+
+The server then uses the key it has embeded along with the passed initialization vector to decrypt the credentials. Rails then checks that the date passed in the request is within a pre defined range from the time on the server. If that passes, the server recreates the hashed tokens witht he passed date and then checks to see if the created date hashed token matches the passed date hashed token.
 
 ## The tokens
 

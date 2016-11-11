@@ -24,7 +24,7 @@ The **date is always passed in the header credential** JSON object as "date" for
 
 For requests requiring user authentication, the date hashed user token is passed in the header credential JSON object as "token" along with the user identifier (default "id").
 
-For non get requests requiring CSRF protection, the parameter credential json object must contain the date hashed app token as "token".
+For non get requests requiring CSRF protection, the parameter credential JSON object must contain the date hashed app token as "token".
 
 # Implementation
 ## Rails

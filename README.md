@@ -319,8 +319,13 @@ paramsToPost["something"] = "some value"
 
 # Contributing
 
-Please feel free to create a fork and contribute to this project. It needs further testing, refactoring, and feature expansion.
+Please feel free to create a fork and contribute to this project. It needs further testing, refactoring, and feature expansion. Also any therorectical or directional changes are welcome as well!
 
+### TODO
+
+* Accompanying java code.
+* Use base64 rather than hex encoding/decoding.
+* Unit testing.
 
 
 
